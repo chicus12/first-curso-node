@@ -1,0 +1,24 @@
+{
+  "name": "first-curso-node",
+  "version": "1.0.0",
+  "description": "Ejemplos de como utilizar node para crear aplicaciones web eficientes",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chicus12/first-curso-node.git"
+  },
+  "keywords": [
+    "node",
+    "soin",
+    "javascript"
+  ],
+  "author": "Francisco Cerdas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chicus12/first-curso-node/issues"
+  },
+  "homepage": "https://github.com/chicus12/first-curso-node#readme"
+}
