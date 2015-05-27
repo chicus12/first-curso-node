@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/chicus12/first-curso-node/issues"
   },
-  "homepage": "https://github.com/chicus12/first-curso-node#readme"
+  "homepage": "https://github.com/chicus12/first-curso-node#readme",
+  "dependencies": {
+    "express": "^4.12.4"
+  }
 }
