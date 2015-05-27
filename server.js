@@ -2,10 +2,15 @@ var express = require('express'),
 	session = require('express-session'),
 	bodyParser = require('body-parser'),
 	cookieParser = require('cookie-parser'),
+	serveStatic = require('serve-static'),
 	_       = require('underscore'),
 	swig    = require('swig');
 
 var server = express();
+
+var serverIO = require('http').Server(server);
+
+var io = require('socket.io').listen(serverIO);
 
 // Configuracion para renderear vistas
 server.engine('html', swig.renderFile);
@@ -19,6 +24,8 @@ server.use(session({ resave: true,
 server.use(cookieParser());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
+
+server.use(serveStatic(__dirname + '/public'))
 
 var users = [];
 
@@ -57,7 +64,15 @@ server.get("/log-out", function (req, res) {
 server.post("/log-in", function (req, res) {
 	req.session.user = req.body.username;
 	users.push(req.session.user);
+	io.sockets.emit("log-in", {username: req.session.user});
 	res.redirect('/app');
+
 });
 
-server.listen(3000);
+io.on('connection', function (socket) {
+	socket.on('hello?', function (data) {
+		socket.emit('saludo', { message: 'hello, estamos en contacto!' });
+	});
+});
+
+serverIO.listen(3000);
