@@ -8,6 +8,7 @@ server.get("/", function (req, res) {
 });
 
 server.get("/messages", function (req, res) {
+	debugger;
 	res.send(messages);
 });
 
