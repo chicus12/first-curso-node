@@ -1,31 +1,78 @@
 var express = require('express'),
-	_       = require('underscore');
+	session = require('express-session'),
+	bodyParser = require('body-parser'),
+	cookieParser = require('cookie-parser'),
+	serveStatic = require('serve-static'),
+	_       = require('underscore'),
+	swig    = require('swig');
 
 var server = express();
 
-var messages = [];
+var serverIO = require('http').Server(server);
 
-server.get("/", function (req, res) {
-	res.send("Hello World!");
-});
+var io = require('socket.io').listen(serverIO);
 
-server.get("/messages", function (req, res) {
-	if (req.query.find && messages.length) {
-		var result = _.filter(messages, function(message){ return message == req.query.find; });
-		if (!result.length) {
-			res.send("No se encontro ningun mensaje " + req.query.find + " guardado.");
-		} else {
-			res.send(result);
-		}
-	} else {
-		var responseClient = messages.length ? messages : "Aun no has ingresado ningun mensaje";
-		res.send(responseClient);
+// Configuracion para renderear vistas
+server.engine('html', swig.renderFile);
+server.set('view engine', 'html');
+server.set('views', './app/views');
+
+//Agregamos post, cookies y sessiones
+server.use(session({ resave: true,
+                  saveUninitialized: true,
+                  secret: 'bobcatZ7545' }));
+server.use(cookieParser());
+server.use(bodyParser.json());
+server.use(bodyParser.urlencoded({ extended: true }));
+
+server.use(serveStatic(__dirname + '/public'))
+
+var users = [];
+
+var isntLoggedIn = function (req, res, next) {
+	if (!req.session.user) {
+		res.redirect('/');
+		return;
 	}
+
+	next();
+};
+
+var isLoggedIn = function (req, res, next) {
+	if (req.session.user) {
+		res.redirect('/app');
+		return;
+	}
+
+	next();
+};
+
+server.get("/", isLoggedIn, function (req, res) {
+	res.render("home");
 });
 
-server.get("/messages/:message", function (req, res) {
-	messages.push(req.params.message);
-	res.send("tu mensaje es: " + req.params.message);
+server.get("/app", isntLoggedIn, function (req, res) {
+	res.render("app", {user: req.session.user, clients: users});
 });
 
-server.listen(3000);
+server.get("/log-out", function (req, res) {
+	users = _.without(users, req.session.user);
+	req.session.destroy();
+	res.redirect('/');
+});
+
+server.post("/log-in", function (req, res) {
+	req.session.user = req.body.username;
+	users.push(req.session.user);
+	io.sockets.emit("log-in", {username: req.session.user});
+	res.redirect('/app');
+
+});
+
+io.on('connection', function (socket) {
+	socket.on('hello?', function (data) {
+		socket.emit('saludo', { message: 'hello, estamos en contacto!' });
+	});
+});
+
+serverIO.listen(3000);
