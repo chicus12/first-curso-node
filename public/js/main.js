@@ -17,4 +17,8 @@ $(document).ready(function() {
 	io.on('log-out', function (data) {
 		console.log(data);
 	});
+
+	io.on('post', function (data) {
+		$("#posts").append('<p>' + data.user.username + ' - ' + data.message +'</p>')
+	});
 });

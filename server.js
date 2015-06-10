@@ -45,7 +45,7 @@ var homeController = require('./app/controllers/home');
 var appController = require('./app/controllers/app');
 
 homeController(server, io);
-appController(server);
+appController(server, io);
 
 //connections
 var twitterConnection = require('./app/connections/twitter');
