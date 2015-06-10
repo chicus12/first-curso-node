@@ -1,7 +1,7 @@
 var appController = function (server, users) {
 	
 	var isntLoggedIn = function (req, res, next) {
-		if (!req.session.user) {
+		if (!req.session.passport.user) {
 			res.redirect('/');
 			return;
 		}
@@ -10,7 +10,7 @@ var appController = function (server, users) {
 	};
 
 	server.get("/app", isntLoggedIn, function (req, res) {
-		res.render("app", {user: req.session.user, clients: global.users});
+		res.render("app", {user: req.session.passport.user, clients: global.users});
 	});
 };
 

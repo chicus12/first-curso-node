@@ -3,7 +3,7 @@ var _ = require('underscore');
 var homeController = function (server, io) {
 	
 	var isLoggedIn = function (req, res, next) {
-		if (req.session.user) {
+		if (req.session.passport.user) {
 			res.redirect('/app');
 			return;
 		}

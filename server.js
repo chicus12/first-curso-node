@@ -3,6 +3,7 @@ var express = require('express'),
 	bodyParser = require('body-parser'),
 	cookieParser = require('cookie-parser'),
 	serveStatic = require('serve-static'),
+	passport = require('passport'),
 	swig    = require('swig');
 
 var server = express();
@@ -26,17 +27,32 @@ server.use(bodyParser.urlencoded({ extended: true }));
 
 server.use(serveStatic(__dirname + '/public'))
 
+server.use(passport.initialize());
+server.use(passport.session());
+
+passport.serializeUser(function(user, done) {
+	done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+	done(null, obj);
+});
+
 global.users = [];
 
+//controllers
 var homeController = require('./app/controllers/home');
-
-homeController(server, io);
-
 var appController = require('./app/controllers/app');
 
+homeController(server, io);
 appController(server);
 
+//connections
+var twitterConnection = require('./app/connections/twitter');
 
+twitterConnection(server);
+
+//socket io test connection
 io.on('connection', function (socket) {
 	socket.on('hello?', function (data) {
 		socket.emit('saludo', { message: 'hello, estamos en contacto!' });
