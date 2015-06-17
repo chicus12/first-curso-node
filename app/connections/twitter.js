@@ -5,8 +5,8 @@ var passport        = require('passport'),
 
 var twitterConnection = function (server) {
 	passport.use(new TwitterStrategy({
-		consumerKey: "xxxxxx",
-	    consumerSecret: "yyyyyy",
+		consumerKey: "osAybvv4m3MhXefT1hqSNw",
+	    consumerSecret: "IBD8Cu5dPpNOEUgY1FbS3dzBpLLoFFf1IThn4uCPSQE",
 	    callbackURL: "http://127.0.0.1:3000/auth/twitter/callback"	
 	}, function (token, tokenSecret, profile, done) {
 		

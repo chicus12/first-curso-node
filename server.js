@@ -6,7 +6,7 @@ var express = require('express'),
 	passport = require('passport'),
 	swig    = require('swig');
 
-var server = express();
+var server = module.exports = express();
 
 var serverIO = require('http').Server(server);
 
@@ -59,4 +59,6 @@ io.on('connection', function (socket) {
 	});
 });
 
-serverIO.listen(3000);
+if (!module.parent) {
+	serverIO.listen(3000);
+}

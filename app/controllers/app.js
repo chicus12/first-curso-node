@@ -14,8 +14,14 @@ var appController = function (server, io) {
 	};
 
 	var getUser = function (req, res, next) {
-		User.findOne({username: req.session.passport.user.username}, function (err, user) {
-			
+		
+		var userReq = req.body.user || req.session.passport.user.username;
+		
+		User.findOne({username: userReq}, function (err, user) {
+			if (err) {
+				res.send(500, err);
+				return;
+			}
 			req.user = user;
 
 			next();
@@ -31,6 +37,27 @@ var appController = function (server, io) {
 			});
 
 			res.render("app", {user: req.session.passport.user, clients: global.users, posts: postsAsJson});
+		});
+	});
+
+	server.post("/api/posts", getUser, function (req, res) {
+		
+		var post = new Post({
+			message: req.body.content,
+			user: req.user
+		});
+
+		post.save(function (err) {
+			if (err) {
+				res.send(500, err)
+			}
+
+			res
+				.status(200)
+				.json({
+					content : post.message,
+					user : req.user.username 
+				});
 		});
 	});
 
