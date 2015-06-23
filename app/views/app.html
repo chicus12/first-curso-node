@@ -10,4 +10,16 @@
 {% block content %}
 	<h2>Bienvenido {{user.username}}!</h2>
 	<a href="/log-out">Log out</a>
+
+	<div>
+		<form action="/app/posts" method="POST">
+			<textarea name="content"></textarea>
+			<button>ENVIAR MENSAJE</button>
+		</form>
+	</div>
+	<div id="posts">
+		{% for post in posts %}
+			<p>{{post.user.username}} - {{post.message}}</p>
+		{% endfor %}
+	</div>
 {% endblock %}
