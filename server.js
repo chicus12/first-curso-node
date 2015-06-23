@@ -3,7 +3,7 @@ var express = require('express'),
 	bodyParser = require('body-parser'),
 	cookieParser = require('cookie-parser'),
 	serveStatic = require('serve-static'),
-	_       = require('underscore'),
+	passport = require('passport'),
 	swig    = require('swig');
 
 var server = express();
@@ -27,48 +27,32 @@ server.use(bodyParser.urlencoded({ extended: true }));
 
 server.use(serveStatic(__dirname + '/public'))
 
-var users = [];
+server.use(passport.initialize());
+server.use(passport.session());
 
-var isntLoggedIn = function (req, res, next) {
-	if (!req.session.user) {
-		res.redirect('/');
-		return;
-	}
-
-	next();
-};
-
-var isLoggedIn = function (req, res, next) {
-	if (req.session.user) {
-		res.redirect('/app');
-		return;
-	}
-
-	next();
-};
-
-server.get("/", isLoggedIn, function (req, res) {
-	res.render("home");
+passport.serializeUser(function(user, done) {
+	done(null, user);
 });
 
-server.get("/app", isntLoggedIn, function (req, res) {
-	res.render("app", {user: req.session.user, clients: users});
+passport.deserializeUser(function(obj, done) {
+	done(null, obj);
 });
 
-server.get("/log-out", function (req, res) {
-	users = _.without(users, req.session.user);
-	req.session.destroy();
-	res.redirect('/');
-});
+global.users = [];
 
-server.post("/log-in", function (req, res) {
-	req.session.user = req.body.username;
-	users.push(req.session.user);
-	io.sockets.emit("log-in", {username: req.session.user});
-	res.redirect('/app');
+//controllers
+var homeController = require('./app/controllers/home');
+var appController = require('./app/controllers/app');
 
-});
+homeController(server, io);
+appController(server);
 
+//connections
+var twitterConnection = require('./app/connections/twitter');
+
+twitterConnection(server);
+
+//socket io test connection
 io.on('connection', function (socket) {
 	socket.on('hello?', function (data) {
 		socket.emit('saludo', { message: 'hello, estamos en contacto!' });

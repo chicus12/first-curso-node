@@ -8,11 +8,6 @@
 {% endblock %}
 
 {% block content %}
-	<h2>Bienvenido {{user}}!</h2>
+	<h2>Bienvenido {{user.username}}!</h2>
 	<a href="/log-out">Log out</a>
-	<ul id="users">
-		{% for client in clients %}
-			<li>{{client}}</li>
-		{% endfor %}
-	</ul>
 {% endblock %}
